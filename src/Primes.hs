@@ -1,6 +1,5 @@
 module Primes where
 
-
 {-
 This is a prime checker which is not suitable for
 encryption purposes because it is slow. However,
