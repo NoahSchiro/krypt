@@ -27,6 +27,7 @@ library
     exposed-modules:  Primes
     --other-modules:
     build-depends:    base ^>=4.12.0.0,
+                      random ^>= 1.1,
     hs-source-dirs:   src
 
 executable tests
@@ -46,6 +47,7 @@ executable krypt
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:    base ^>=4.12.0.0,
+                      random ^>= 1.1,
                       krypt ^>= 0.0.0.1
     hs-source-dirs:   app
     default-language: Haskell2010
