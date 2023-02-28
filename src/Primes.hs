@@ -62,7 +62,7 @@ probPrimeOneWitness num witness
         | d' >= num-1 = False
         | x' == 1     = False
         | x' == num-1 = True
-        | otherwise   = generalCase (d*2) ((x^2) `mod` num)
+        | otherwise   = generalCase (d'*2) ((x'^2) `mod` num)
 
 {-Tests the primality of a single number given
 that number and a list of witnesses-}
@@ -70,7 +70,8 @@ probPrime :: Integer -> [Integer] -> Bool
 probPrime num witnesses
     | num < 100      = primeCheck (fromIntegral num) -- If num is small, just do the normal check
     | null witnesses = True -- If no witnesses are left then it passes
-    | otherwise      = (probPrimeOneWitness num (head witnesses)) && (probPrime num (tail witnesses))
+    | not (probPrimeOneWitness num (head witnesses)) = False -- Test for the first witness
+    | otherwise      = probPrime num (tail witnesses)
 
 {-Given a infinite list of candidate primes and a
 list of "witnesses", returns a (probable) prime (using

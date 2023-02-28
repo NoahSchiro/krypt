@@ -34,6 +34,7 @@ executable tests
     main-is:          TestSuite.hs
 
     build-depends:    base ^>=4.12.0.0,
+                      random ^>= 1.1,
                       krypt ^>= 0.0.0.1
     hs-source-dirs:   tests
     default-language: Haskell2010
@@ -47,6 +48,7 @@ executable krypt
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:    base ^>=4.12.0.0,
+                      random ^>= 1.1,
                       random ^>= 1.1,
                       krypt ^>= 0.0.0.1
     hs-source-dirs:   app
