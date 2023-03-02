@@ -1,4 +1,9 @@
-module Primes where
+module Primes(
+    primeCheck,
+    isPrimePure,
+    isPrime,
+    largeRandomPrime
+) where
 
 import System.Random
 
@@ -8,7 +13,7 @@ we will use it in testing as a "ground truth" of
 what is prime. Even though this is slow compared
 to the method we will be using, I will still try
 to write it to be resonably fast-}
-primeCheck :: Int -> Bool
+primeCheck :: (Integral a) => a -> Bool
 primeCheck x
     | x < 2            = False
     | x == 2           = True
@@ -16,75 +21,65 @@ primeCheck x
     | otherwise        = helper x 3
     where
 
-    limit :: Int -- Cache the upper bound of possible divisors
+    --Upper bound of possible divisiors
     limit = ceiling $ sqrt $ fromIntegral x
 
     -- Checks every divisor range 3 sqrt(x), increment by 2
-    helper :: Int -> Int -> Bool
     helper x div
         | div >= limit       = True
         | (x `mod` div) == 0 = False
         | otherwise          = helper x (div+2)
 
-{-Given a the candidate prime and the precision (number of
-witnesses), generates a list of witnesses-}
-generateWitnesses :: RandomGen g => g -> Integer -> Int -> [Integer]
-generateWitnesses gen num prec = take prec $ randomRs (2, num-2) gen
+-- Binary exponenciation
+power :: (Integral a) => a -> a -> a -> a 
+power a 1 n = a
+power a e n = (a^(e `mod` 2) * power (a*a `mod` n) (e `div` 2) n) `mod` n 
 
-{-Returns whether or not num is a probable prime given a single witness
-Note that witness must be a number [2..num-2]-}
-probPrimeOneWitness :: Integer -> Integer -> Bool
-probPrimeOneWitness num witness
-    | x == 1 || x == num-1 = True
-    | otherwise            = generalCase d x 
+-- Given x returns (y,z) where x = 2^y * z and z odd
+twoPowersFact :: (Integral a) => a -> (a,a)
+twoPowersFact 0 = (0,0)
+twoPowersFact m = helper (0, abs m)
     where
- 
-    getD :: Integer -> Integer
-    getD possibleD
-        | odd possibleD = possibleD 
-        | otherwise     = getD (div possibleD 2)
+    helper (s, n)
+        | even n    = helper (s+1, n `div` 2)
+        | otherwise = (s,n)
 
-    d :: Integer
-    d = getD (num-1)
-
-    power :: Integer -> Integer -> Integer -> Integer
-    power a' d' n' = (a'^d') `mod` n'
-
-    x :: Integer
-    x = power witness d num
-
-    -- General case will seek to keep squaring x until
-    -- 1. d is greater than or equal to n-1
-    -- 2. x^2 % n is not 1
-    -- 3. x^2 % n is not n-1
-    generalCase :: Integer -> Integer -> Bool
-    generalCase d' x'
-        | d' >= num-1 = False
-        | x' == 1     = False
-        | x' == num-1 = True
-        | otherwise   = generalCase (d'*2) ((x'^2) `mod` num)
-
-{-Tests the primality of a single number given
-that number and a list of witnesses-}
-probPrime :: Integer -> [Integer] -> Bool
-probPrime num witnesses
-    | num < 100      = primeCheck (fromIntegral num) -- If num is small, just do the normal check
-    | null witnesses = True -- If no witnesses are left then it passes
-    | not (probPrimeOneWitness num (head witnesses)) = False -- Test for the first witness
-    | otherwise      = probPrime num (tail witnesses)
-
-{-Given a infinite list of candidate primes and a
-list of "witnesses", returns a (probable) prime (using
-miller-rabin primality) and the remainder of the list-}
-millerRabin :: [Integer]  -> [Integer] -> (Integer, [Integer])
-millerRabin nums witnesses
-    | even $ candidate              = millerRabin remainder witnesses --Ensure it is odd
-    | probPrime candidate witnesses = (candidate, remainder) -- Main test
-    | otherwise                     = millerRabin remainder witnesses -- If test fails, try the next num
+millerRabin :: (Integral a) => a -> a -> Bool
+millerRabin num a = base == 1 || test base (fst fact) 0 num
     where
-    
-    candidate :: Integer
-    candidate = head nums
 
-    remainder :: [Integer]
-    remainder = tail nums
+    fact = twoPowersFact (num-1)
+
+    base = power a (snd fact) num
+
+    test :: (Integral a) => a -> a -> a -> a -> Bool
+    test b s r n
+        | r == s           = b == n-1
+        | b == 1 && r /= 0 = False
+        | otherwise        = b == n-1 || test (power b 2 n) s (r+1) n
+
+-- isPrimePure possiblePrime [list of testBases]
+isPrimePure :: (Eq a, Integral a) => a -> [a] -> Bool 
+isPrimePure can wit
+    | can < 100 = primeCheck can -- For low numbers, just use the normal test
+    | null wit  = False -- If we run out of witnesses
+    | otherwise = all (\ p -> p >= can || (can `mod` p) /= 0) primes
+               && foldr ((&&) . millerRabin can) True wit
+    where
+    primes = [3,5,7,11,13,17,19,23,29,31]
+
+-- Wrapper primality test; generates the witnesses 
+-- and passes them off to the primary primality test
+isPrime :: (RandomGen g, Integral a, Random a) => g -> a -> Bool
+isPrime gen can = isPrimePure can witnesses
+    where
+    -- We use 20 witnesses, but this is arbitrary
+    witnesses = take 20 $ randomRs (2,can-2) gen
+
+largeRandomPrime :: (RandomGen g, Integral a, Random a) => g -> a
+largeRandomPrime gen
+    | even randomNum        = largeRandomPrime nextGen
+    | isPrime gen randomNum = randomNum
+    | otherwise             = largeRandomPrime nextGen
+    where 
+    (randomNum, nextGen) = randomR (2^2000, 2^2100) gen
