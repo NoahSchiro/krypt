@@ -9,19 +9,19 @@ testNormalRange lower upper = [x | x <- [lower..upper], primeCheck x]
 testMRRange :: (Eq a, Integral a) => a -> a -> [a] -> [a]
 testMRRange lower upper wit = [x | x <- [lower..upper], isPrimePure x wit]
 
-diff :: [(Int, Bool)] -> [(Int, Bool)] -> [(Int, Bool)]
-diff l1 l2 = filter (\(_,y) -> not y) $ zipWith (\x y -> (fst x, x==y)) l1 l2
+isReallyPrime :: (Integral a) => [a] -> [a]
+isReallyPrime xs = [x | x <- xs, not $ primeCheck x]
 
 -- TODO: Maybe integrate HUnit instead of all this?
 main :: IO ()
 main = do
     g <- getStdGen
-    {-
-    let witnesses = [fst $ randomR (1, 100) g] :: [Integer]
 
-    let normal = testNormalRange 1 1000
-    let milrab = testMRRange 1 1000 witnesses :: [Integer]
-    print $ length normal
-    print $ length milrab -}
-    let out = largeRandomPrime g :: Integer
-    print out 
+    let witnesses = take 10 $ randomRs (1, 100) g :: [Integer]
+
+    --let normal = testNormalRange 100 200 
+    let milrab = testMRRange 1 1000000 witnesses :: [Integer]
+    print $ length (isReallyPrime milrab)
+    
+    --let out = largeRandomPrime g :: Integer
+    --print out 
