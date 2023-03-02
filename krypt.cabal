@@ -12,7 +12,7 @@ version:            0.0.0.1
 -- bug-reports:
 
 -- The license under which the package is released.
--- license:
+license:            GNU GPLv3
 author:             NoahSchiro
 maintainer:         noahschiro@rocketmail.com
 
@@ -24,8 +24,8 @@ extra-source-files:
     README.md
 
 library
-    exposed-modules:  Primes
-    --other-modules:
+    exposed-modules:  Primes, Keys
+    
     build-depends:    base ^>=4.12.0.0,
                       random ^>= 1.1,
     hs-source-dirs:   src
@@ -39,7 +39,7 @@ executable tests
     hs-source-dirs:   tests
     default-language: Haskell2010
 
-executable krypt
+executable keygen
     main-is:          KeyGen.hs
 
     -- Modules included in this executable, other than Main.
@@ -48,7 +48,6 @@ executable krypt
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:    base ^>=4.12.0.0,
-                      random ^>= 1.1,
                       random ^>= 1.1,
                       krypt ^>= 0.0.0.1
     hs-source-dirs:   app
