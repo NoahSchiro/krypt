@@ -12,7 +12,7 @@ version:            0.0.0.1
 -- bug-reports:
 
 -- The license under which the package is released.
-license:            GNU GPLv3
+license:          	GPL-3.0-only
 author:             NoahSchiro
 maintainer:         noahschiro@rocketmail.com
 

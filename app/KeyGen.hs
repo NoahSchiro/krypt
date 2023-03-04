@@ -2,13 +2,7 @@ module Main where
 
 import System.Random
 import Primes
-
-getPrimes :: (RandomGen g) => g -> (Integer, Integer)
-getPrimes gen = (p, q)
-    where
-    (genOne, genTwo) = split gen
-    p = largeRandomPrime genOne
-    q = largeRandomPrime genTwo
+import Keys
 
 main :: IO ()
 main = do
@@ -16,11 +10,13 @@ main = do
     -- Random number generator
     gen <- getStdGen
 
-    -- Get two large random primes
-    let (p, q) = getPrimes gen
+    -- Create the keys
+    let key = createKeyPair gen
 
-    print p
-    print "\n"
-    print q
-
-    -- Next would be to do some prime stuff / 
+    -- Print everything out
+    putStrLn ("P1: " ++ (show $ p1 $ private key))
+    putStrLn ("P2: " ++ (show $ p2 $ private key))
+    putStrLn ("N: "  ++ (show $ n $ public key))
+    putStrLn ("Totient: " ++ (show $ tot $ private key))
+    putStrLn ("E: " ++ (show $ e $ public key))
+    putStrLn ("D: " ++ (show $ d $ private key))
