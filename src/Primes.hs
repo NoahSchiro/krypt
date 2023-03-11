@@ -1,5 +1,6 @@
 module Primes(
     primeCheck,
+    power,
     isPrimePure,
     isPrime,
     largeRandomPrime
